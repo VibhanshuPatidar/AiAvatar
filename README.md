@@ -1,4 +1,3 @@
-```markdown
 # 🤖 AiAvatar  
 **An End-to-End Talking Avatar with Lip-Sync, TTS, and 3D Rendering**
 
@@ -27,13 +26,11 @@ Backend supports **Node.js** and optional **Python utilities**. You can use **lo
 ## 📂 Project Structure
 
 ```
-
 AiAvatar/
 ├── frontend/  # React + Three.js for rendering the avatar
 ├── backend/   # API server: LLM, TTS, lip-sync, payload assembly
 └── assets/    # Screenshots, demo GIFs (optional)
-
-````
+```
 
 - **frontend** → UI & Avatar rendering.  
 - **backend** →  
@@ -61,26 +58,21 @@ AiAvatar/
 ```bash
 git clone https://github.com/VibhanshuPatidar/AiAvatar.git
 cd AiAvatar
-````
+```
 
 ### 2️⃣ Install Backend
-
 ```bash
 cd backend
 yarn install   # or npm install
 ```
-
 Ensure:
-
-* `backend/bin/rhubarb` exists & is executable
-* FFmpeg works:
-
+- `backend/bin/rhubarb` exists & is executable  
+- FFmpeg works:
 ```bash
 ffmpeg -version
 ```
 
 ### 3️⃣ Install Frontend
-
 ```bash
 cd ../frontend
 yarn install   # or npm install
@@ -103,16 +95,13 @@ OLLAMA_BASE_URL=http://localhost:11434
 
 ## 🎤 Rhubarb Lip-Sync Installation
 
-1. Download for your OS → [Releases](https://github.com/DanielSWolf/rhubarb-lip-sync/releases)
-2. Place binary in `backend/bin/rhubarb` (or `.exe` for Windows)
+1. Download for your OS → [Releases](https://github.com/DanielSWolf/rhubarb-lip-sync/releases)  
+2. Place binary in `backend/bin/rhubarb` (or `.exe` for Windows)  
 3. Make executable:
-
 ```bash
 chmod +x backend/bin/rhubarb
 ```
-
 4. Verify:
-
 ```bash
 ./backend/bin/rhubarb --version
 ```
@@ -122,14 +111,12 @@ chmod +x backend/bin/rhubarb
 ## 💻 Running Locally
 
 ### Backend
-
 ```bash
 cd backend
 yarn dev
 ```
 
 ### Frontend
-
 ```bash
 cd frontend
 yarn dev
@@ -144,37 +131,33 @@ yarn dev
 ![Flow Diagram](assets/flow.png) <!-- Replace with your architecture diagram -->
 
 **Pipeline:**
-
-1. **User Prompt** → Sent to LLM (Ollama or Cloud)
-2. **Text Output** → Sent to ElevenLabs for TTS (MP3/WAV)
-3. **Audio File** → Processed by Rhubarb → Mouth cue JSON
-4. **Payload** → `{ text, audio, lipsync.mouthCues }` sent to frontend
-5. **3D Avatar** → Speaks & animates with lip-sync
+1. **User Prompt** → Sent to LLM (Ollama or Cloud)  
+2. **Text Output** → Sent to ElevenLabs for TTS (MP3/WAV)  
+3. **Audio File** → Processed by Rhubarb → Mouth cue JSON  
+4. **Payload** → `{ text, audio, lipsync.mouthCues }` sent to frontend  
+5. **3D Avatar** → Speaks & animates with lip-sync  
 
 ---
 
 ## 🐞 Troubleshooting
 
-| Issue             | Solution                                    |
-| ----------------- | ------------------------------------------- |
-| Rhubarb not found | Check path, permissions (`chmod +x`)        |
-| No audio output   | Verify API key, voice ID, FFmpeg            |
-| Mouth not moving  | Check Rhubarb JSON output, frontend parsing |
-| CORS errors       | Allow frontend dev origin in backend config |
+| Issue | Solution |
+|-------|----------|
+| Rhubarb not found | Check path, permissions (`chmod +x`) |
+| No audio output | Verify API key, voice ID, FFmpeg |
+| Mouth not moving | Check Rhubarb JSON output, frontend parsing |
+| CORS errors | Allow frontend dev origin in backend config |
 
 ---
 
 ## 🚀 Production Notes
 
-* Cache TTS responses for cost savings
-* Stream audio for faster response
-* Use PM2/systemd for backend process management
-* Store secrets in a vault
+- Cache TTS responses for cost savings  
+- Stream audio for faster response  
+- Use PM2/systemd for backend process management  
+- Store secrets in a vault  
 
 ---
 
 ## 📜 License
-
 MIT © [Vibhanshu Patidar](https://github.com/VibhanshuPatidar)
-
----
