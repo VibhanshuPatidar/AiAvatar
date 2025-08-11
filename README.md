@@ -1,7 +1,3 @@
-Here’s a beautified version of your **AiAvatar** README with better formatting, visual section breaks, badges, and example images. I’ve kept the original content but restructured it for clarity and added illustrative placeholders where you can place real screenshots or GIFs from your repo.
-
----
-
 ```markdown
 # 🤖 AiAvatar  
 **An End-to-End Talking Avatar with Lip-Sync, TTS, and 3D Rendering**
