@@ -1,0 +1,23 @@
+{
+  "mouthCues": [
+    {
+      "start": 0.0,
+      "end": 0.5,
+      "value": "A"
+    },
+    {
+      "start": 0.5,
+      "end": 1.0,
+      "value": "B"
+    },
+    {
+      "start": 1.0,
+      "end": 1.5,
+      "value": "C"
+    }
+  ],
+  "metadata": {
+    "soundFile": "",
+    "duration": 2.0
+  }
+}

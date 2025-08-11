@@ -1,0 +1,59 @@
+ai-avatar-agent/
+│
+├── README.md                       # Root integration instructions
+│
+├── frontend/                       # React Three Fiber frontend (modified from r3f-virtual-girlfriend-frontend)
+│   ├── package.json
+│   ├── yarn.lock
+│   ├── vite.config.js
+│   ├── .env.example
+│   ├── .env
+│   ├── public/
+│   │   └── favicon.ico
+│   └── src/
+│       ├── main.jsx
+│       ├── App.jsx
+│       ├── api.js
+│       │
+│       ├── components/
+│       │   ├── Avatar.jsx
+│       │   ├── Chat.jsx
+│       │   ├── Controls.jsx
+│       │   ├── Loader.jsx
+│       │
+│       ├── hooks/
+│       │   └── useAudioPlayer.js
+│       │
+│       ├── styles/
+│       │   └── index.css
+│       │
+│       └── assets/
+│           └── placeholder.mp3
+│
+│
+├── backend/                        # New Python FastAPI backend (replaces Node/Express)
+│   ├── README.md
+│   ├── requirements.txt
+│   ├── .env.example
+│   ├── .env
+│   │
+│   ├── app/
+│   │   ├── __init__.py
+│   │   ├── main.py                  # FastAPI entry point
+│   │   ├── config.py                # Environment + settings
+│   │   ├── llm.py                   # Ollama + Gemma 4B integration
+│   │   ├── tts.py                   # Piper / ElevenLabs / none
+│   │   ├── lipsync.py               # Rhubarb lipsync generation
+│   │   ├── schemas.py               # Pydantic models
+│   │   └── utils.py                 # Helpers
+│   │
+│   ├── bin/
+│   │   └── rhubarb                  # Rhubarb binary (make executable)
+│   │
+│   ├── models/
+│   │   └── README.md                # Info or placeholder
+│   │
+│   └── static/
+│       ├── audio/                   # Generated MP3 files
+│       └── lipsync/                  # Generated JSON mouthCues
+│
