@@ -8,7 +8,7 @@ def chat_llm(user_text: str, system_prompt: str = "") -> str:
     """
     url = f"{settings.OLLAMA_HOST}/api/generate"
     # Using /api/generate with prompt; for chat, you can also use /api/chat.
-    prompt = (system_prompt + "\n\n" if system_prompt else "") + f"User: {user_text}\nAssistant:"
+    prompt = (system_prompt if system_prompt else "") + f"  User: {user_text}"
     payload = {
         "model": settings.LLM_MODEL,
         "prompt": prompt,
@@ -18,9 +18,9 @@ def chat_llm(user_text: str, system_prompt: str = "") -> str:
         }
     }
     print(f"Calling LLM with payload: {payload}")
-    # resp = requests.post(url, json=payload, timeout=120)
-    # print(f"LLM response: {resp.text}")
-    # resp.raise_for_status()
-    # data = resp.json()
-    # return data.get("response", "").strip()
-    return "LLM response"
+    resp = requests.post(url, json=payload, timeout=120)
+    print(f"LLM response: {resp.text}")
+    resp.raise_for_status()
+    data = resp.json()
+    return data.get("response", "").strip()
+    # return "LLM response"

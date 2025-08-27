@@ -11,6 +11,7 @@ from .llm import chat_llm
 from .tts import synthesize_speech
 from .lipsync import generate_lipsync_json
 from .utils import unique_id, ensure_dirs
+import random
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -45,6 +46,8 @@ except Exception as e:
 SYSTEM_PROMPT = (
     "You are a friendly, virtual avatar for helping the user. "
     "Keep responses short. 1-2 sentences max."
+    "Give the output in the following json format: "
+    "<your response> $$$ <your sentiment **only** from the list: [smile, funnyFace, sad, surprised, angry, crazy]>"
 )
 
 @app.get("/health")
@@ -70,11 +73,21 @@ async def chat(req: dict):
         except Exception as e:
             logger.error(f"LLM error: {e}")
             raise HTTPException(status_code=500, detail=f"LLM error: {e}")
-
+        
+        reply = reply.strip()
+        # read reply as a json format
+        if "$$$" in reply:
+            reply_text = reply.split("$$$")[0].strip()
+            sentiment = reply.split("$$$")[1].strip()
+        reply_text = ''.join(c for c in reply_text if ord(c) < 128)
+        sentiment = ''.join(c for c in sentiment if ord(c) < 128)
+        # keep only alphabets in sentiment
+        sentiment = ''.join(c for c in sentiment if c.isalpha())
+        print(f"Processed reply: {reply_text}, Sentiment: {sentiment}")
         # Generate unique IDs for files
         audio_id = unique_id("speech")
         lipsync_id = unique_id("lipsync")
-
+        reply = reply_text
         # Define file paths
         audio_path = os.path.join(settings.STATIC_AUDIO_DIR, f"{audio_id}.wav")
         lipsync_path = os.path.join(settings.STATIC_LIPSYNC_DIR, f"{lipsync_id}.json")
@@ -107,14 +120,16 @@ async def chat(req: dict):
         # }
         # remove any non ascii characters from reply
         reply = ''.join(c for c in reply if ord(c) < 128)
+        # pick a random number between 0 and 2
+        temp = random.randint(0, 2)
         message_data = {
             "text": reply,
             "audio": "/static/audio/speech_20250811153758_87f84d1d.wav",
             "lipsync": "/static/lipsync/lipsync_20250811153758_f925eea2.json",
-            "facialExpression": "smile",
-            "animation": "Talking"
+            "facialExpression": sentiment,
+            "animation": f"Talking_{temp}"
         }
-
+        print(f"Message data prepared: {message_data}")
         return {"messages": [message_data]}
 
     except HTTPException:
