@@ -1,3 +1,5 @@
+export default function MeshRobin({ nodes, materials, group, ...props }) {
+  return (
 <group {...props} dispose={null}>
       <primitive object={nodes.Hips} />
       <skinnedMesh
@@ -33,19 +35,14 @@
         morphTargetInfluences={nodes.Wolf3D_Teeth.morphTargetInfluences}
       />
       <skinnedMesh
-        geometry={nodes['hair-60'].geometry}
-        material={materials.M_Hair_60}
-        skeleton={nodes['hair-60'].skeleton}
+        geometry={nodes.Wolf3D_Hair.geometry}
+        material={materials.Wolf3D_Hair}
+        skeleton={nodes.Wolf3D_Hair.skeleton}
       />
       <skinnedMesh
         geometry={nodes.Wolf3D_Body.geometry}
         material={materials.Wolf3D_Body}
         skeleton={nodes.Wolf3D_Body.skeleton}
-      />
-      <skinnedMesh
-        geometry={nodes.Wolf3D_Outfit_Bottom.geometry}
-        material={materials.Wolf3D_Outfit_Bottom}
-        skeleton={nodes.Wolf3D_Outfit_Bottom.skeleton}
       />
       <skinnedMesh
         geometry={nodes.Wolf3D_Outfit_Footwear.geometry}
@@ -58,3 +55,4 @@
         skeleton={nodes.Wolf3D_Outfit_Top.skeleton}
       />
     </group>
+    );}

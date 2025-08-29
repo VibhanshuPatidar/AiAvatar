@@ -106,10 +106,20 @@ const corresponding = {
 
 let setupMode = false;
 
-export function Avatar(props) {
-  const { nodes, materials, scene } = useGLTF(
-    "/models/6898add57c6c17df6665ca52.glb"
-  );
+// Import mesh components instead of raw txt
+import MeshGoth from "./meshes/mesh_goth.jsx";
+import MeshNerd from "./meshes/mesh-nerd.jsx";
+import MeshRobin from "./meshes/mesh-robin.jsx";
+
+
+const meshMap = {
+  "goth.glb": MeshGoth,
+  "nerd.glb": MeshNerd,
+  "robin.glb": MeshRobin,
+};
+
+export function Avatar({ model = "robin.glb", ...props }) {
+  const { nodes, materials, scene } = useGLTF(`/models/${model}`);
 
   const { message, onMessagePlayed, chat } = useChat();
 
@@ -335,71 +345,19 @@ export function Avatar(props) {
     return () => clearTimeout(blinkTimeout);
   }, []);
 
+const MeshComponent = meshMap[model] || null;
+
   return (
-    
     <group {...props} dispose={null} ref={group}>
-      <primitive object={nodes.Hips} />
-      <skinnedMesh
-        name="EyeLeft"
-        geometry={nodes.EyeLeft.geometry}
-        material={materials.Wolf3D_Eye}
-        skeleton={nodes.EyeLeft.skeleton}
-        morphTargetDictionary={nodes.EyeLeft.morphTargetDictionary}
-        morphTargetInfluences={nodes.EyeLeft.morphTargetInfluences}
-      />
-      <skinnedMesh
-        name="EyeRight"
-        geometry={nodes.EyeRight.geometry}
-        material={materials.Wolf3D_Eye}
-        skeleton={nodes.EyeRight.skeleton}
-        morphTargetDictionary={nodes.EyeRight.morphTargetDictionary}
-        morphTargetInfluences={nodes.EyeRight.morphTargetInfluences}
-      />
-      <skinnedMesh
-        name="Wolf3D_Head"
-        geometry={nodes.Wolf3D_Head.geometry}
-        material={materials.Wolf3D_Skin}
-        skeleton={nodes.Wolf3D_Head.skeleton}
-        morphTargetDictionary={nodes.Wolf3D_Head.morphTargetDictionary}
-        morphTargetInfluences={nodes.Wolf3D_Head.morphTargetInfluences}
-      />
-      <skinnedMesh
-        name="Wolf3D_Teeth"
-        geometry={nodes.Wolf3D_Teeth.geometry}
-        material={materials.Wolf3D_Teeth}
-        skeleton={nodes.Wolf3D_Teeth.skeleton}
-        morphTargetDictionary={nodes.Wolf3D_Teeth.morphTargetDictionary}
-        morphTargetInfluences={nodes.Wolf3D_Teeth.morphTargetInfluences}
-      />
-      <skinnedMesh
-        geometry={nodes['hair-60'].geometry}
-        material={materials.M_Hair_60}
-        skeleton={nodes['hair-60'].skeleton}
-      />
-      <skinnedMesh
-        geometry={nodes.Wolf3D_Body.geometry}
-        material={materials.Wolf3D_Body}
-        skeleton={nodes.Wolf3D_Body.skeleton}
-      />
-      <skinnedMesh
-        geometry={nodes.Wolf3D_Outfit_Bottom.geometry}
-        material={materials.Wolf3D_Outfit_Bottom}
-        skeleton={nodes.Wolf3D_Outfit_Bottom.skeleton}
-      />
-      <skinnedMesh
-        geometry={nodes.Wolf3D_Outfit_Footwear.geometry}
-        material={materials.Wolf3D_Outfit_Footwear}
-        skeleton={nodes.Wolf3D_Outfit_Footwear.skeleton}
-      />
-      <skinnedMesh
-        geometry={nodes.Wolf3D_Outfit_Top.geometry}
-        material={materials.Wolf3D_Outfit_Top}
-        skeleton={nodes.Wolf3D_Outfit_Top.skeleton}
-      />
-   
+      {MeshComponent && (
+        <MeshComponent nodes={nodes} materials={materials} group={group} />
+      )}
     </group>
   );
 }
 
-useGLTF.preload("/models/6898add57c6c17df6665ca52.glb");
+// Preload all models for smoother switching
+useGLTF.preload("/models/goth.glb");
+useGLTF.preload("/models/nerd.glb");
+useGLTF.preload("/models/robin.glb");
 useGLTF.preload("/models/animations.glb");
