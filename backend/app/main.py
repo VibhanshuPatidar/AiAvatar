@@ -84,10 +84,10 @@ async def chat(req: dict):
         else:
             sentiment = "smile"
             reply_text = reply
-        reply_text = ''.join(c for c in reply_text if ord(c) < 256)
-        sentiment = ''.join(c for c in sentiment if ord(c) < 128)
+        reply_text = "".join(c for c in reply_text if (ord(c) < 128 or ord(c) == 8217 or ord(c) == 8216))
+        sentiment = "".join(c for c in sentiment if ord(c) < 128)
         # keep only alphabets in sentiment
-        sentiment = ''.join(c for c in sentiment if c.isalpha())
+        sentiment = "".join(c for c in sentiment if c.isalpha())
         print(f"Processed reply: {reply_text}, Sentiment: {sentiment}")
         # Delete any previous files in speech and lipsync folders
         for folder in [settings.STATIC_AUDIO_DIR, settings.STATIC_LIPSYNC_DIR]:
@@ -124,7 +124,7 @@ async def chat(req: dict):
         except Exception as e:
             logger.error(f"LipSync error: {e}")
             raise HTTPException(status_code=500, detail=f"LipSync error: {e}")
-        reply = ''.join(c for c in reply if ord(c) < 128)
+        reply = "".join(c for c in reply_text if (ord(c) < 128 or ord(c) == 8217 or ord(c) == 8216))
         # Prepare response
         temp = random.randint(0, 2)
         message_data = {

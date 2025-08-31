@@ -332,9 +332,9 @@ export function Avatar({ model = "robin.glb", ...props }) {
         setBlink(true);
         setTimeout(() => {
           setBlink(false);
-          nextBlink();
+          // nextBlink();
         }, 200);
-      }, THREE.MathUtils.randInt(1000, 5000));
+      }, THREE.MathUtils.randInt(1000, 3000));
     };
     nextBlink();
     return () => clearTimeout(blinkTimeout);

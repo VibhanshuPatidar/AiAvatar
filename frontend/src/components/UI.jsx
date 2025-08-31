@@ -1,137 +1,210 @@
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useChat } from "../hooks/useChat";
 
-export const UI = ({ hidden, selectedModel, setSelectedModel, avatarModels, ...props }) => {
+export const UI = ({ hidden, selectedModel, setSelectedModel, avatarModels }) => {
   const input = useRef();
-  const { chat, loading, cameraZoomed, setCameraZoomed, message } = useChat();
+  const scrollRef = useRef();
+  const recognitionRef = useRef(null);
+  const { chat, loading, message } = useChat();
+  const [history, setHistory] = useState([]);
+  const [showHistory, setShowHistory] = useState(false);
+  const [listening, setListening] = useState(false);
+  const [autoSendSpeech, setAutoSendSpeech] = useState(false); 
+  const [previewTranscript, setPreviewTranscript] = useState("");
 
   const sendMessage = () => {
-    const text = input.current.value;
-    if (!loading && !message) {
-      chat(text);
-      input.current.value = "";
-    }
+    const text = input.current.value.trim();
+    if (!text || loading || message) return;
+
+    setHistory((prev) => [...prev, { sender: "user", text }]);
+    chat(text);
+    input.current.value = "";
   };
-  if (hidden) {
-    return null;
-  }
+
+  // append avatar messages
+  useEffect(() => {
+    if (message?.text) {
+      setHistory((prev) => {
+        if (prev.length && prev[prev.length - 1].text === message.text) return prev;
+        return [...prev, { sender: "avatar", text: message.text }];
+      });
+    }
+  }, [message]);
+
+  // auto-scroll on new messages
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [history]);
+
+  if (hidden) return null;
 
   const avatarName = selectedModel.replace(".glb", "");
+
+  // 🎤 Toggle listening
+  const toggleListening = () => {
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Speech Recognition not supported in this browser.");
+      return;
+    }
+
+    if (listening) {
+      recognitionRef.current?.stop();
+      setTimeout(() => {
+        setListening(false);
+      }, 2000);
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = "en-US";
+    recognition.interimResults = true;
+    recognition.maxAlternatives = 1;
+
+    recognitionRef.current = recognition;
+    recognition.start();
+    setListening(true);
+
+    recognition.onresult = (event) => {
+  let transcript = "";
+  for (let i = event.resultIndex; i < event.results.length; i++) {
+    transcript += event.results[i][0].transcript;
+  }
+
+  // 👇 live preview as you speak
+  setPreviewTranscript(transcript);
+  input.current.value = transcript;
+
+  // 👇 only auto-send when it's final and auto-send is ON
+  if (event.results[event.results.length - 1].isFinal) {
+    if (autoSendSpeech) {
+      sendMessage();
+    }
+  }
+};
+
+    recognition.onerror = () => {
+      setListening(false);
+    };
+
+    recognition.onend = () => {
+      setListening(false);
+    };
+  };
+
   return (
-    <>
-      <div className="fixed top-0 left-0 right-0 bottom-0 z-10 flex justify-between p-4 flex-col pointer-events-none">
-        <div className="self-start backdrop-blur-md bg-blue-500 bg-opacity-50 p-4 rounded-lg flex flex-col gap-2 pointer-events-auto">
-          <h1 className="font-black text-xl">My AI Avatar</h1>
-          <p>I am here to help you</p>
-          {/* Avatar model dropdown */}
-          <div className="mt-2">
-            <label htmlFor="avatar-select" className="font-semibold mr-2">Avatar:</label>
-            <select
-              id="avatar-select"
-              value={selectedModel}
-              onChange={e => setSelectedModel(e.target.value)}
-              className="bg-white bg-opacity-80 rounded px-2 py-1 text-gray-800"
-            >
-              {avatarModels.map(model => (
-                <option key={model} value={model}>{model.replace('.glb', '')}</option>
-              ))}
-            </select>
-          </div>
-        </div>
-        <div className="w-full flex flex-col items-end justify-center gap-4">
-          <button
-            onClick={() => setCameraZoomed(!cameraZoomed)}
-            className="pointer-events-auto bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-md"
+    <div className="fixed inset-0 z-10 flex flex-col pointer-events-none p-4">
+      {/* Header */}
+      <div className="self-start backdrop-blur-md bg-blue-500 bg-opacity-50 p-4 rounded-lg flex flex-col gap-2 pointer-events-auto">
+        <div className="mt-0">
+          <label htmlFor="avatar-select" className="font-bold mr-2">
+            Avatar:
+          </label>
+          <select
+            id="avatar-select"
+            value={selectedModel}
+            onChange={(e) => setSelectedModel(e.target.value)}
+            className="bg-blue-600 hover:bg-blue-700 bg-opacity-50 rounded px-2 py-1 text-black font-bold cursor-pointer"
           >
-            {cameraZoomed ? (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="w-6 h-6"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM13.5 10.5h-6"
-                />
-              </svg>
-            ) : (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="w-6 h-6"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6"
-                />
-              </svg>
-            )}
-          </button>
-          {/* <button
-            onClick={() => {
-              const body = document.querySelector("body");
-              if (body.classList.contains("greenScreen")) {
-                body.classList.remove("greenScreen");
-              } else {
-                body.classList.add("greenScreen");
-              }
-            }}
-            className="pointer-events-auto bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-md"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="w-6 h-6"
-            >
-              <path
-                strokeLinecap="round"
-                d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z"
-              />
-            </svg>
-          </button> */}
-        </div>
-        {/* ✅ Floating subtitle above chat input */}
-        {message?.text && (
-          <div className="pointer-events-none fixed bottom-28 left-1/2 transform -translate-x-1/2 bg-white text-black px-4 py-2 rounded-lg shadow-md max-w-screen-sm w-11/12 text-base opacity-75">
-            <span className="text-blue-600 font-bold">{avatarName.toUpperCase()}:</span>{" "}
-            <span>{message.text}</span>
-          </div>
-        )}
-        <div className="flex items-center gap-2 pointer-events-auto max-w-screen-sm w-full mx-auto">
-          <input
-            className="w-full placeholder:text-gray-800 placeholder:italic p-4 rounded-md bg-opacity-50 bg-white backdrop-blur-md"
-            placeholder="Type a message..."
-            ref={input}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                sendMessage();
-              }
-            }}
-          />
-          <button
-            disabled={loading || message}
-            onClick={sendMessage}
-            className={`bg-blue-500 hover:bg-blue-600 text-white p-4 px-10 font-semibold uppercase rounded-md ${
-              loading || message ? "cursor-not-allowed opacity-30" : ""
-            }`}
-          >
-            Send
-          </button>
+            {avatarModels.map((model) => (
+              <option key={model} value={model}>
+                {model.replace(".glb", "").toUpperCase()}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
-    </>
-  );
 
-// To use selectedModel, pass it as a prop to Avatar component in parent (not shown here)
+      {/* Toggle Chat Visibility */}
+      <div className="fixed top-6 right-6 pointer-events-auto flex flex-col gap-2 items-end">
+        <button
+          onClick={() => setShowHistory((prev) => !prev)}
+          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md"
+        >
+          {showHistory ? "Hide Chat" : "Show Chat"}
+        </button>
+
+        {/* 🔄 Auto-send toggle */}
+        <button
+          onClick={() => setAutoSendSpeech((prev) => !prev)}
+          className={`${
+            autoSendSpeech ? "bg-blue-500 hover:bg-blue-600" : "bg-green-500 hover:bg-green-600"
+          } text-white px-4 py-2 rounded-lg shadow-md`}
+        >
+          {autoSendSpeech ? "Auto-Send Speech: ON" : "Auto-Send Speech: OFF"}
+        </button>
+      </div>
+
+      {/* Conversation history */}
+      {showHistory && (
+        <div
+          ref={scrollRef}
+          className="fixed bottom-28 left-1/2 transform -translate-x-1/2 h-60 overflow-y-auto w-full max-w-screen-sm bg-white bg-opacity-50 rounded-lg p-4 space-y-0 pointer-events-auto"
+        >
+          {history.map((msg, idx) =>
+            msg.sender === "avatar" ? (
+              <div key={idx} className="text-left">
+                <div className="text-blue-600 font-bold mb-1">{avatarName.toUpperCase()}</div>
+                <div className="inline-block bg-blue-500 text-white px-4 py-2 rounded-lg max-w-[80%]">
+                  {msg.text}
+                </div>
+              </div>
+            ) : (
+              <div key={idx} className="text-right">
+                <div className="text-green-600 font-bold mb-1">YOU</div>
+                <div className="inline-block bg-green-500 text-white px-4 py-2 rounded-lg max-w-[80%]">
+                  {msg.text}
+                </div>
+              </div>
+            )
+          )}
+        </div>
+      )}
+      {/* Listening indicator */}
+      {listening && (
+        <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 flex gap-2 items-center pointer-events-none">
+          <span className="w-3 h-3 bg-blue-500 rounded-full animate-bounce"></span>
+          <span className="w-3 h-3 bg-blue-500 rounded-full animate-bounce delay-150"></span>
+          <span className="w-3 h-3 bg-blue-500 rounded-full animate-bounce delay-300"></span>
+        </div>
+      )}
+      {/* Input bar fixed at bottom */}
+      <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 flex items-center gap-2 pointer-events-auto max-w-screen-sm w-full px-2">
+        <input
+          className="flex-1 placeholder:text-gray-800 placeholder:italic p-4 rounded-md bg-opacity-40 bg-white backdrop-blur-md border border-blue-500 border-width-4 overflow-y-auto"
+          placeholder="Type a message..."
+          ref={input}
+          defaultValue={previewTranscript}
+          onChange={(e) => setPreviewTranscript(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              sendMessage();
+            }
+          }}
+        />
+        {/* 🎤 Toggle speech button */}
+        <button
+          onClick={toggleListening}
+          className={`${
+            listening ? "bg-red-500 hover:bg-red-600 text-white" : "bg-blue-500 hover:bg-blue-600 text-white"
+          } px-4 py-4 rounded-md`}
+        >
+          {listening ? "Stop 🎤" : "Start 🎤"}
+        </button>
+        <button
+          disabled={loading || message}
+          onClick={sendMessage}
+          className={`bg-blue-500 hover:bg-blue-600 text-white p-4 px-6 font-semibold uppercase rounded-md ${
+            loading || message ? "cursor-not-allowed opacity-30" : ""
+          }`}
+        >
+          Send
+        </button>
+      </div>
+    </div>
+  );
 };
