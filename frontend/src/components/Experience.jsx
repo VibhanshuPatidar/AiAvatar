@@ -3,10 +3,34 @@ import {
   ContactShadows,
   Environment,
   Text,
+  Sky,
+  useGLTF
 } from "@react-three/drei";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useChat } from "../hooks/useChat";
 import { Avatar } from "./Avatar";
+import * as THREE from "three";
+
+
+
+function EnvironmentScene({ url, onGroundDetected }) {
+  const { scene } = useGLTF(url);
+
+  useEffect(() => {
+    scene.traverse((obj) => {
+      if (obj.isMesh && obj.material) {
+        obj.material.side = THREE.DoubleSide;
+        obj.material.needsUpdate = true;
+      }
+    });
+
+    // detect ground level of environment
+    const box = new THREE.Box3().setFromObject(scene);
+    onGroundDetected(box.min.y);  // pass lowest Y back up
+  }, [scene, onGroundDetected]);
+
+  return <primitive object={scene} scale={5} />;
+}
 
 const Dots = (props) => {
   const { loading } = useChat();
@@ -41,26 +65,38 @@ export const Experience = ({ selectedModel }) => {
   const cameraControls = useRef();
   const { cameraZoomed } = useChat();
 
-  useEffect(() => {
-    cameraControls.current.setLookAt(0, 2, 5, 0, 1.5, 0);
-  }, []);
+  const [envGround, setEnvGround] = useState(0);
 
   useEffect(() => {
-    if (cameraZoomed) {
-      cameraControls.current.setLookAt(0, 1.5, 1.5, 0, 1.5, 0, true);
-    } else {
-      cameraControls.current.setLookAt(0, 2.2, 5, 0, 1.0, 0, true);
-    }
-  }, [cameraZoomed]);
+    cameraControls.current.setLookAt(-1, envGround + 1.5, 2, -1, envGround + 1.5, 0);
+  }, [envGround]);
+
   return (
     <>
       <CameraControls ref={cameraControls} />
-      <Environment preset="sunset" />
-      {/* Wrapping Dots into Suspense to prevent Blink when Troika/Font is loaded */}
+
+      {/* Lights */}
+      <ambientLight intensity={0.5} />
+      <directionalLight position={[10, 10, 5]} intensity={2} castShadow />
+
+      {/* Environment light */}
+      <Environment preset="city" />
+
       <Suspense>
-        <Dots position-y={1.75} position-x={-0.02} />
+        <EnvironmentScene
+          url="/textures/beautiful_city.glb"
+          onGroundDetected={(y) => setEnvGround(y)}
+        />
       </Suspense>
-  <Avatar key={selectedModel} model={selectedModel} />
+
+      {/* Avatar positioned automatically on ground */}
+      <Suspense>
+        <group position={[-1, envGround, 0]} rotation={[0, 0, 0]}>
+          <Avatar key={selectedModel} model={selectedModel} />
+        </group>
+        <Dots position={[-1.02, envGround + 1.75, 0]} />
+      </Suspense>
+
       <ContactShadows opacity={0.7} />
     </>
   );

@@ -3,3 +3,4 @@ backend/.env
 frontend/node_modules
 gltf_comp.txt
 hello.wav
+frontend/public/textures/cyberpunk_city.glb
