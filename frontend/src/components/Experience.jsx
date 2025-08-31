@@ -91,7 +91,7 @@ export const Experience = ({ selectedModel }) => {
 
       {/* Avatar positioned automatically on ground */}
       <Suspense>
-        <group position={[-1, envGround, 0]} rotation={[0, 0, 0]}>
+        <group position={[-1, envGround + 0.08, 0]} rotation={[0, 0, 0]}>
           <Avatar key={selectedModel} model={selectedModel} />
         </group>
         <Dots position={[-1.02, envGround + 1.75, 0]} />
