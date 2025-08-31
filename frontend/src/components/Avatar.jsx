@@ -54,24 +54,16 @@ const facialExpressions = {
     mouthFunnel: 1,
     browInnerUp: 1,
   },
-  angry: {
-    browDownLeft: 1,
-    browDownRight: 1,
-    eyeSquintLeft: 1,
-    eyeSquintRight: 1,
-    jawForward: 1,
-    jawLeft: 0.5,
-    mouthShrugLower: 1,
-    noseSneerLeft: 1,
-    noseSneerRight: 0.42,
-    eyeLookDownLeft: 0.16,
-    eyeLookDownRight: 0.16,
-    cheekSquintLeft: 1,
-    cheekSquintRight: 1,
-    mouthClose: 0.23,
-    mouthFunnel: 0.63,
-    mouthDimpleRight: 1,
-  },
+  angry:{
+  browDownLeft: 1,
+  browDownRight: 1,
+  eyeSquintLeft: 1,
+  eyeSquintRight: 1,
+  mouthFrownLeft: 0.75,
+  mouthFrownRight: 0.74,
+  mouthShrugLower: 0.33,
+  mouthShrugUpper: 0.65
+},
   crazy: {
     browInnerUp: 0.9,
     jawForward: 1,
@@ -151,7 +143,10 @@ export function Avatar({ model = "robin.glb", ...props }) {
     const audio = new Audio(audioPath);
     audio.play().catch(err => console.warn("Audio play failed:", err));
     setAudio(audio);
-    audio.onended = onMessagePlayed;
+    audio.onended = () => {
+      setFacialExpression("default");
+      onMessagePlayed();
+    };
   } else {
     console.warn("No valid audio file found in message:", message?.audio);
   }

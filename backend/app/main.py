@@ -46,8 +46,10 @@ except Exception as e:
 SYSTEM_PROMPT = (
     "You are a friendly, virtual avatar for helping the user. "
     "Keep responses short. 1-2 sentences max."
-    "Give the output in the following json format: "
-    "<your response> $$$ <your sentiment **only** from the list: [smile, funnyFace, sad, surprised, angry, crazy]>"
+    "Give the output **only** in the following format: "
+    "<your response> $$$ <your sentiment>"
+    "make sure to use $$$ in your response to seperate the reply from sentiment"
+    "make sure that the sentiment is **only** from the list: [smile, funnyFace, sad, surprised, angry, crazy]>"
 )
 
 @app.get("/health")
@@ -79,11 +81,24 @@ async def chat(req: dict):
         if "$$$" in reply:
             reply_text = reply.split("$$$")[0].strip()
             sentiment = reply.split("$$$")[1].strip()
-        reply_text = ''.join(c for c in reply_text if ord(c) < 128)
+        else:
+            sentiment = "smile"
+            reply_text = reply
+        reply_text = ''.join(c for c in reply_text if ord(c) < 256)
         sentiment = ''.join(c for c in sentiment if ord(c) < 128)
         # keep only alphabets in sentiment
         sentiment = ''.join(c for c in sentiment if c.isalpha())
         print(f"Processed reply: {reply_text}, Sentiment: {sentiment}")
+        # Delete any previous files in speech and lipsync folders
+        for folder in [settings.STATIC_AUDIO_DIR, settings.STATIC_LIPSYNC_DIR]:
+            for filename in os.listdir(folder):
+                file_path = os.path.join(folder, filename)
+                try:
+                    if os.path.isfile(file_path):
+                        os.unlink(file_path)
+                        logger.info(f"Deleted old file: {file_path}")
+                except Exception as e:
+                    logger.error(f"Error deleting file {file_path}: {e}")
         # Generate unique IDs for files
         audio_id = unique_id("speech")
         lipsync_id = unique_id("lipsync")
@@ -95,40 +110,41 @@ async def chat(req: dict):
         logger.info(f"Generated paths - Audio: {audio_path}, Lipsync: {lipsync_path}")
 
         # Generate speech
-        # try:
-        #     synthesize_speech(reply, audio_path)
-        #     logger.info(f"Speech synthesized successfully: {audio_path}")
-        # except Exception as e:
-        #     logger.error(f"TTS error: {e}")
-        #     raise HTTPException(status_code=500, detail=f"TTS error: {e}")
+        try:
+            synthesize_speech(reply, audio_path)
+            logger.info(f"Speech synthesized successfully: {audio_path}")
+        except Exception as e:
+            logger.error(f"TTS error: {e}")
+            raise HTTPException(status_code=500, detail=f"TTS error: {e}")
 
         # # Generate lipsync
-        # try:
-        #     generate_lipsync_json(audio_path, lipsync_path)  # Pass WAV path directly
-        #     logger.info(f"Lipsync generated successfully: {lipsync_path}")
-        # except Exception as e:
-        #     logger.error(f"LipSync error: {e}")
-        #     raise HTTPException(status_code=500, detail=f"LipSync error: {e}")
-        # reply = ''.join(c for c in reply if ord(c) < 128)
-        # # Prepare response
-        # message_data = {
-        #     "text": reply,
-        #     "audio": f"/static/audio/{audio_id}.wav",
-        #     "lipsync": f"/static/lipsync/{lipsync_id}.json",
-        #     "facialExpression": "smile",
-        #     "animation": "Talking"
-        # }
-        # remove any non ascii characters from reply
+        try:
+            generate_lipsync_json(audio_path, lipsync_path)  # Pass WAV path directly
+            logger.info(f"Lipsync generated successfully: {lipsync_path}")
+        except Exception as e:
+            logger.error(f"LipSync error: {e}")
+            raise HTTPException(status_code=500, detail=f"LipSync error: {e}")
         reply = ''.join(c for c in reply if ord(c) < 128)
-        # pick a random number between 0 and 2
+        # Prepare response
         temp = random.randint(0, 2)
         message_data = {
             "text": reply,
-            "audio": "/static/audio/speech_20250811153758_87f84d1d.wav",
-            "lipsync": "/static/lipsync/lipsync_20250811153758_f925eea2.json",
+            "audio": f"/static/audio/{audio_id}.wav",
+            "lipsync": f"/static/lipsync/{lipsync_id}.json",
             "facialExpression": sentiment,
             "animation": f"Talking_{temp}"
         }
+        # # remove any non ascii characters from reply
+        # reply = ''.join(c for c in reply if ord(c) < 128)
+        # # pick a random number between 0 and 2
+        # temp = random.randint(0, 2)
+        # message_data = {
+        #     "text": reply,
+        #     "audio": "/static/audio/speech_20250811153758_87f84d1d.wav",
+        #     "lipsync": "/static/lipsync/lipsync_20250811153758_f925eea2.json",
+        #     "facialExpression": sentiment,
+        #     "animation": f"Talking_{temp}"
+        # }
         print(f"Message data prepared: {message_data}")
         return {"messages": [message_data]}
 
@@ -137,6 +153,8 @@ async def chat(req: dict):
     except Exception as e:
         logger.error(f"Unexpected error in chat endpoint: {e}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+
 
 if __name__ == "__main__":
     import uvicorn

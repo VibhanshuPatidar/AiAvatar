@@ -2,3 +2,4 @@ backend/.env
 *.pyc
 frontend/node_modules
 gltf_comp.txt
+hello.wav

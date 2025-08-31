@@ -29,7 +29,7 @@ function App() {
   return (
     <>
       <Loader />
-      <Leva/>
+      <Leva hidden/>
       <UI
         selectedModel={selectedModel}
         setSelectedModel={setSelectedModel}
