@@ -95,7 +95,7 @@ async def chat(req: dict):
                 file_path = os.path.join(folder, filename)
                 try:
                     if os.path.isfile(file_path):
-                        os.unlink(file_path)
+                        os.remove(file_path)
                         logger.info(f"Deleted old file: {file_path}")
                 except Exception as e:
                     logger.error(f"Error deleting file {file_path}: {e}")

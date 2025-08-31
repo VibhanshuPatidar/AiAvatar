@@ -16,6 +16,7 @@ export const UI = ({ hidden, selectedModel, setSelectedModel, avatarModels, ...p
     return null;
   }
 
+  const avatarName = selectedModel.replace(".glb", "");
   return (
     <>
       <div className="fixed top-0 left-0 right-0 bottom-0 z-10 flex justify-between p-4 flex-col pointer-events-none">
@@ -100,6 +101,13 @@ export const UI = ({ hidden, selectedModel, setSelectedModel, avatarModels, ...p
             </svg>
           </button> */}
         </div>
+        {/* ✅ Floating subtitle above chat input */}
+        {message?.text && (
+          <div className="pointer-events-none fixed bottom-28 left-1/2 transform -translate-x-1/2 bg-white text-black px-4 py-2 rounded-lg shadow-md max-w-screen-sm w-11/12 text-base opacity-75">
+            <span className="text-blue-600 font-bold">{avatarName.toUpperCase()}:</span>{" "}
+            <span>{message.text}</span>
+          </div>
+        )}
         <div className="flex items-center gap-2 pointer-events-auto max-w-screen-sm w-full mx-auto">
           <input
             className="w-full placeholder:text-gray-800 placeholder:italic p-4 rounded-md bg-opacity-50 bg-white backdrop-blur-md"
