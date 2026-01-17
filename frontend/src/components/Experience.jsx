@@ -82,19 +82,19 @@ export const Experience = ({ selectedModel }) => {
       {/* Environment light */}
       <Environment preset="city" />
 
-      <Suspense>
+      {/* <Suspense>
         <EnvironmentScene
           url="/textures/beautiful_city.glb"
           onGroundDetected={(y) => setEnvGround(y)}
         />
-      </Suspense>
+      </Suspense> */}
 
       {/* Avatar positioned automatically on ground */}
       <Suspense>
         <group position={[-1, envGround + 0.08, 0]} rotation={[0, 0, 0]}>
           <Avatar key={selectedModel} model={selectedModel} />
         </group>
-        <Dots position={[-1.02, envGround + 1.75, 0]} />
+        <Dots position={[-1.03, envGround + 1.85, 0]} />
       </Suspense>
 
       <ContactShadows opacity={0.7} />

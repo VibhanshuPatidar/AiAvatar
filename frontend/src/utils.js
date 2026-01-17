@@ -9,6 +9,9 @@ export async function listAvatarModels() {
   return [
     "nerd.glb",
     "goth.glb",
-    "robin.glb"
+    "robin.glb",
+    "robocop.glb",
+    "yennifer.glb",
+    "damian.glb"
   ];
 }

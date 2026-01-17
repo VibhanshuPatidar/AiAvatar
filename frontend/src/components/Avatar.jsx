@@ -102,12 +102,17 @@ let setupMode = false;
 import MeshGoth from "./meshes/mesh_goth.jsx";
 import MeshNerd from "./meshes/mesh-nerd.jsx";
 import MeshRobin from "./meshes/mesh-robin.jsx";
-
+import MeshRobocop from "./meshes/mesh-robocop.jsx";
+import MeshYennifer from "./meshes/mesh-yennifer.jsx";
+import MeshDamian from "./meshes/mesh-damian.jsx";
 
 const meshMap = {
   "goth.glb": MeshGoth,
   "nerd.glb": MeshNerd,
   "robin.glb": MeshRobin,
+  "robocop.glb": MeshRobocop,
+  "yennifer.glb": MeshYennifer,
+  "damian.glb": MeshDamian,
 };
 
 export function Avatar({ model = "robin.glb", ...props }) {
@@ -355,4 +360,7 @@ const MeshComponent = meshMap[model] || null;
 useGLTF.preload("/models/goth.glb");
 useGLTF.preload("/models/nerd.glb");
 useGLTF.preload("/models/robin.glb");
+useGLTF.preload("/models/robocop.glb");
+useGLTF.preload("/models/yennifer.glb");
+useGLTF.preload("models/damian.glb");
 useGLTF.preload("/models/animations.glb");

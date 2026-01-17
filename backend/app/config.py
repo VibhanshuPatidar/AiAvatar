@@ -9,8 +9,14 @@ class Settings:
     def __init__(self):
         # LLM Configuration
         self.OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
-        self.LLM_MODEL = os.getenv("LLM_MODEL", "gemma2:4b")  # Fixed model name
-
+        self.LLM_MODEL = os.getenv("LLM_MODEL", "gemma3:4b")  # Fixed model name
+        self.LLM_PROVIDER = os.getenv("LLM_PROVIDER", "ollama").lower()
+        self.OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+        self.PERPLEXITY_MODEL = os.getenv("PERPLEXITY_MODEL", "sonar-small-chat")
+        self.OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+        self.PERPLEXITY_API_KEY = os.getenv("PERPLEXITY_API_KEY", "")
+        self.OLLAMA_KV_CACHE_TYPE = os.getenv("OLLAMA_KV_CACHE_TYPE", "q8_0")
+        self.OLLAMA_FLASH_ATTENTION = os.getenv("OLLAMA_FLASH_ATTENTION", "1") == "1"
         # TTS Configuration
         self.TTS_PROVIDER = os.getenv("TTS_PROVIDER", "piper").lower()
         self.ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY", "")

@@ -63,7 +63,6 @@ cd AiAvatar
 ### 2️⃣ Install Backend
 ```bash
 cd backend
-yarn install   # or npm install
 ```
 Ensure:
 - `backend/bin/rhubarb` exists & is executable  
@@ -113,13 +112,13 @@ chmod +x backend/bin/rhubarb
 ### Backend
 ```bash
 cd backend
-yarn dev
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 ### Frontend
 ```bash
 cd frontend
-yarn dev
+npm dev run
 ```
 
 🔗 Open: [http://localhost:5173](http://localhost:5173)
