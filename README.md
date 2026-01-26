@@ -112,6 +112,11 @@ chmod +x backend/bin/rhubarb
 ### Backend
 ```bash
 cd backend
+python app/agent.py
+```
+
+```bash
+cd backend
 uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
